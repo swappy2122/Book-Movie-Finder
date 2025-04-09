@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Book & Movie Finder</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+  
+  :root {
+    --primary: #2e2e2e;
+    --secondary: #121212;
+    --accent: #00e5ff;
+    --dark: #000000;
+    --light: #f5f5f5;
+    --gray-100: #f1f1f1;
+    --gray-200: #e1e1e1;
+    --gray-300: #d1d1d1;
+    --gray-400: #b1b1b1;
+    --gray-500: #919191;
+    --gray-600: #717171;
+    --gray-700: #515151;
+    --gray-800: #313131;
+    --gray-900: #212121;
+  }
+  
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: #000000;
+    background-image: 
+      radial-gradient(circle at 10% 20%, rgba(40, 40, 40, 0.2) 0%, transparent 20%),
+      radial-gradient(circle at 90% 80%, rgba(50, 50, 50, 0.15) 0%, transparent 25%);
+    color: var(--light);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    position: relative;
+    overflow-x: hidden;
+  }
+  
+  /* Subtle animated background elements */
+  body::before, body::after {
+    content: "";
+    position: fixed;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    z-index: -1;
+    filter: blur(120px);
+  }
+  
+  body::before {
+    background: rgba(50, 50, 50, 0.2);
+    top: -100px;
+    left: -100px;
+    animation: float 20s infinite alternate ease-in-out;
+  }
+  
+  body::after {
+    background: rgba(30, 30, 30, 0.15);
+    bottom: -100px;
+    right: -100px;
+    animation: float 18s infinite alternate-reverse ease-in-out;
+  }
+  
+  @keyframes float {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(50px, 50px) rotate(10deg); }
+  }
+  
+  /* Main Container with glassmorphism effect */
+  .container {
+    background: rgba(25, 25, 25, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 40px 30px;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 960px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  
+  .container::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    border: 2px solid transparent;
+    border-radius: 28px;
+    background: linear-gradient(45deg, #333, #000, #666) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: destination-out;
+    mask-composite: exclude;
+    opacity: 0.5;
+    z-index: -1;
+  }
+  
+  .container:hover {
+    transform: translateY(-10px);
+  }
+  
+  /* Typography with bold, sleek headings */
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 30px;
+    background: linear-gradient(45deg, #f5f5f5, #00e5ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    display: inline-block;
+  }
+  
+  h1::after {
+    content: "✨";
+    position: absolute;
+    right: -30px;
+    top: 0;
+  }
+  
+  
+#searchForm {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 18px;
+    margin: 40px 0;
+    position: relative;
+    z-index: 1;
+  }
+  
+  
+  input[type="text"] {
+    padding: 16px 24px;
+    font-size: 16px;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    background: rgba(15, 15, 15, 0.7);
+    min-width: 250px;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    color: var(--light);
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(5px);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  input[type="text"]::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+    transition: all 0.3s ease;
+  }
+  
+  input[type="text"]:focus::placeholder {
+    opacity: 0.7;
+    transform: translateX(5px);
+  }
+  
+  input[type="text"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.2), 0 8px 16px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+  }
+  
+  /* Add subtle glow effect on focus */
+  input[type="text"]:focus::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--accent);
+    animation: glowPulse 1.5s infinite;
+  }
+  
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+  
+  /* Enhanced Select Dropdown */
+  select {
+    padding: 16px 35px 16px 24px;
+    font-size: 16px;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    background: rgba(15, 15, 15, 0.7);
+    min-width: 250px;
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    color: var(--light);
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+  }
+  
+  select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.2), 0 8px 16px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+  }
+  
+  select:hover {
+    background-color: rgba(25, 25, 25, 0.8);
+  }
+  
+  
+  button {
+    padding: 16px 32px;
+    font-size: 16px;
+    background: linear-gradient(135deg, #1a1a1a, #000000);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  
+  button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, #000000, #1a1a1a);
+  }
+  
+  
+  button::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #333333, #000000, #00e5ff, #000000, #333333);
+    background-size: 400%;
+    border-radius: 14px;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  button:hover::after {
+    opacity: 1;
+    animation: borderGlow 3s linear infinite;
+  }
+  
+  @keyframes borderGlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  
+  button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba(255, 255, 255, 0.1), 
+      transparent);
+    transition: all 0.6s;
+  }
+  
+  button:hover::before {
+    left: 100%;
+  }
+  
+  /* Add icon to button */
+  button::after {
+    content: '→';
+    position: relative;
+    display: inline-block;
+    margin-left: 6px;
+    transition: transform 0.3s ease;
+    z-index: 1;
+    font-size: 18px;
+    opacity: 0.8;
+  }
+  
+  button:hover::after {
+    transform: translateX(4px);
+    opacity: 1;
+  }
+  
+  /* Active state */
+  button:active {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    #searchForm {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+    }
+    
+    input[type="text"], select, button {
+      width: 100%;
+      min-width: unset;
+    }
+    
+    button {
+      margin-top: 10px;
+    }
+  }
+  
+  /* Button states for enhanced interaction */
+  button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.3), 0 8px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Alternative button style for different actions */
+  .btn-alt {
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    color: #f5f5f5;
+  }
+  
+  .btn-alt:hover {
+    background: rgba(0, 229, 255, 0.1);
+    border-color: rgba(0, 229, 255, 0.3);
+  }
+  
+  /* Loading state for button */
+  button.loading {
+    pointer-events: none;
+    position: relative;
+    color: transparent;
+  }
+  
+  button.loading::before {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 50%;
+    left: 50%;
+    margin: -10px 0 0 -10px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  /* Inputs and Select with minimal accents */
+  input[type="text"], select {
+    padding: 16px 24px;
+    font-size: 16px;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    background: rgba(20, 20, 20, 0.6);
+    min-width: 250px;
+    outline: none;
+    transition: all 0.3s ease;
+    color: var(--light);
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  input[type="text"]::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  input[type="text"]:focus, select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+  }
+  
+  /* Button with gradient and hover effects */
+  button {
+    padding: 16px 30px;
+    font-size: 16px;
+    background: linear-gradient(45deg, #212121, #000000);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(45deg, #000000, #212121);
+  }
+  
+  button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+  }
+  
+  button:hover::before {
+    transform: translateX(100%);
+  }
+  
+  /* Results Grid with dynamic layout */
+  #results {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 25px;
+    margin-top: 40px;
+  }
+  
+  /* Card Styling with minimal borders and hover effects */
+  .card {
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: left;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, #303030, #00e5ff);
+    transition: all 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  }
+  
+  .card:hover::before {
+    width: 6px;
+  }
+  
+  .card img {
+    width: 100%;
+    height: 180px;
+    border-radius: 12px;
+    object-fit: cover;
+    margin-bottom: 15px;
+    transition: all 0.4s ease;
+    filter: contrast(1.1) grayscale(0.3);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  .card:hover img {
+    transform: scale(1.05);
+    filter: contrast(1.2) grayscale(0.1) brightness(1.1);
+  }
+  
+  .card h3 {
+    color: var(--light);
+    font-size: 18px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    position: relative;
+  }
+  
+  .card p {
+    font-size: 14px;
+    color: var(--gray-400);
+    line-height: 1.5;
+  }
+  
+  /* Modal styling with immersive design */
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+  }
+  
+  .modal-box {
+    background: rgba(15, 15, 15, 0.95);
+    padding: 40px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 650px;
+    text-align: left;
+    color: var(--light);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .modal-box::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(to right, #333, #000, #00e5ff);
+  }
+  
+  .modal-box h2 {
+    margin-bottom: 20px;
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(45deg, #f5f5f5, #00e5ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  
+  .modal-box p {
+    line-height: 1.8;
+    margin-bottom: 20px;
+    font-size: 16px;
+    color: var(--gray-300);
+  }
+  
+  .modal-box button {
+    margin-top: 25px;
+    background: linear-gradient(45deg, #212121, #000000);
+    font-size: 15px;
+    border: 1px solid rgba(0, 229, 255, 0.3);
+  }
+  
+  .modal-box button:hover {
+    border-color: var(--accent);
+  }
+  
+  .modal-poster {
+    width: 100%;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    filter: contrast(1.1) grayscale(0.3);
+  }
+  
+  @keyframes popIn {
+    0% {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    background: rgba(0, 0, 0, 0.2);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, #333, #00e5ff);
+    border-radius: 10px;
+  }
+  
+  /* Responsive Design with mobile-first approach */
+  @media (max-width: 992px) {
+    .container {
+      padding: 35px 25px;
+    }
+    
+    h1 {
+      font-size: 2.2rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    body {
+      padding: 30px 15px;
+    }
+    
+    h1 {
+      font-size: 1.8rem;
+    }
+    
+    #searchForm {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    input[type="text"], select, button {
+      width: 100%;
+      min-width: unset;
+    }
+    
+    .modal-box {
+      padding: 30px 20px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.6rem;
+    }
+    
+    .card {
+      padding: 15px;
+    }
+    
+    .card h3 {
+      font-size: 16px;
+    }
+    
+    .modal-box h2 {
+      font-size: 22px;
+    }
+    
+    button {
+      padding: 14px 20px;
+      font-size: 14px;
+    }
+  }
+  
+  /* Cool loading animation */
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.7; }
+  }
+  
+  .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 20px 0;
+  }
+  
+  .loading span {
+    width: 12px;
+    height: 12px;
+    background: #333;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+  
+  .loading span:nth-child(2) {
+    animation-delay: 0.2s;
+    background: #555;
+  }
+  
+  .loading span:nth-child(3) {
+    animation-delay: 0.4s;
+    background: var(--accent);
+  }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Search Books and Movies</h1>
+    <form id="searchForm">
+        <input type="text" id="query" placeholder="Enter title..." required />
+        
+        <select id="searchType">
+          <option value="both">Books & Movies</option>
+          <option value="movie">Movies Only</option>
+          <option value="book">Books Only</option>
+        </select>
+      
+        <button type="submit">Search</button>
+    </form>
+    <div id="modal" class="modal">
+        <div class="modal-box" id="modal-content">
+          <!-- Content injected by JS -->
+        </div>
+      </div>
+      
+      
+    <div id="results"></div>
+  </div>
+  <script>
+    document.getElementById('searchForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const query = document.getElementById('query').value;
+        const type = document.getElementById('searchType').value;
+      
+        try {
+          const res = await fetch(`/search?q=${query}&type=${type}`);
+          if (!res.ok) throw new Error('Failed to fetch results');
+          const data = await res.json();
+      
+          const resultsDiv = document.getElementById('results');
+          resultsDiv.innerHTML = '';
+      
+          // Render Movies
+          if (data.movies?.length) {
+            data.movies.forEach(movie => {
+              const card = document.createElement('div');
+              card.className = 'card';
+              card.innerHTML = `
+                <img src="${movie.Poster !== 'N/A' ? movie.Poster : 'default.jpg'}" alt="Poster" />
+                <h3>${movie.Title}</h3>
+                <p>${movie.Year}</p>
+              `;
+              card.onclick = () => {
+                showMovieDetails(movie);
+              };
+              resultsDiv.appendChild(card);
+            });
+          }
+      
+          // Render Books
+          if (data.books?.length) {
+            data.books.forEach(book => {
+              const info = book.volumeInfo;
+              const card = document.createElement('div');
+              card.className = 'card';
+              card.innerHTML = `
+                <img src="${info.imageLinks?.thumbnail || 'default.jpg'}" alt="Cover" />
+                <h3>${info.title}</h3>
+                <p>${info.authors?.join(', ') || 'Unknown Author'}</p>
+              `;
+              card.onclick = () => showModal({
+                title: info.title,
+                year: info.publishedDate || 'Unknown',
+                rating: info.averageRating || 'N/A',
+                description: info.description || 'No description available',
+                image: info.imageLinks?.thumbnail || 'default.jpg'
+              });
+              resultsDiv.appendChild(card);
+            });
+          }
+      
+        } catch (err) {
+          alert('Something went wrong: ' + err.message);
+        }
+      });
+      
+      // Show movie details in modal
+      function showMovieDetails(movie) {
+        showModal({
+          title: movie.Title,
+          year: movie.Year,
+          rating: movie.imdbRating || 'N/A',
+          description: movie.Plot || 'No plot available.',
+          image: movie.Poster !== 'N/A' ? movie.Poster : 'default.jpg',
+          genre: movie.Genre || 'Unknown'
+        });
+      }
+      
+      // Show modal
+      function showModal({ title, year, rating, description, image, genre }) {
+        const modal = document.getElementById('modal');
+        const modalContent = document.getElementById('modal-content');
+      
+        modalContent.innerHTML = `
+          <img src="${image}" alt="${title}" class="modal-poster" />
+          <h2>${title} (${year})</h2>
+          <p><strong>Genre:</strong> ${genre}</p>
+          <p><strong>Plot:</strong> ${description}</p>
+          <p><strong>IMDB Rating:</strong> ⭐ ${rating}</p>
+          <button onclick="closeModal()">Close</button>
+        `;
+      
+        modal.style.display = 'flex';
+      }
+      
+      // Close modal
+      function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+      }
+      
+  </script>
+</body>
+</html>
